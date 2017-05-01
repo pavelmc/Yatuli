@@ -17,6 +17,8 @@ This is a kind of linear tuning and in the center with big steps on the edges:
 * All the above is changeable in hot state via public variables.
 * Direction finding for Option selection.
 
+See the examples bundled with the lib for use cases.
+
 ## Hardware ##
 
 We use a linear volume resistor with extremes connected to GND and +Vcc of the Arduino, for stability you must put a 1uF polarized capacitor across GND and +Vcc at the variable resistor legs, then a 10nF (103) capacitor across GND and the wiper.
