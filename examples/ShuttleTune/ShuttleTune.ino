@@ -21,7 +21,7 @@
  * ===========================================================================
  *
  * This example simulates a radio dial via serial port, you can see the
- * frequency, ADC value and relative value to center.
+ * frequency, ADC value and relative value to ADC center.
  *
  * ===========================================================================
  *
@@ -60,8 +60,8 @@ void show(long val, word adc, int rel) {
 
 
 void setup() {
-    // initialize serial communications at 115200 bps:
-    Serial.begin(115200);
+    // initialize serial communications at 19200 bps:
+    Serial.begin(19200);
     Serial.println("Example init...");
 
     // Init the lib
@@ -70,6 +70,7 @@ void setup() {
     // Set 7.100 Mhz as the start freq
     St.set(7150000L);
 }
+
 
 void loop() {
     // check

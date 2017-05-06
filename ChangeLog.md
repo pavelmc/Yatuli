@@ -1,6 +1,15 @@
 # Yatuli Changelog File #
 
-## Initial Release, v0.1 (May 1, 2017) ##
+## Update release v0.2 (May 6, 2017) ##
+
+### Improvements ###
+
+* Flutter fix from amunters code, thanks to Jerry KE7ER.
+* Refactory of the code for size and speed, to match flutter fix fix.
+* Update all the docs about this release.
+
+
+## Initial Release (private, never published), v0.1 (May 1, 2017) ##
 
 ### Basic functionality ###
 

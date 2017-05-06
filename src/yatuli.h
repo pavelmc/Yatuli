@@ -40,7 +40,6 @@
 #include "Arduino.h"
 
 // some defines
-#define ST_SAMPLES 5        // not bugger than 63
 #define PACE 500            // how many time between edge jumps & dir emits
 #define LIMITLOW 11         // limits to jump (low)
 #define LIMITHIGH 1012      // limits to jump (high)
@@ -67,16 +66,15 @@ class Yatuli {
         uint32_t value(void);
         
         // Return a relative vector from the last position: -1/0/+1
-        // at a pace of twice a second
+        // it will emit about ~50 steps in one rotation
         int16_t dir(void);
-
-        // public variables
+        
+    private:
         uint16_t adc;           // real value of the ADC
         uint32_t start;         // start of the range
         uint32_t end;           // stop of the range
-        uint16_t step;          // minimum step
+        uint16_t step;          // minimum step (x/10 to allow for jitter correction)
         uint16_t edgeStep;      // steps at the edges
-    private:
         uint32_t base;          // base value of the slot (lower end)
         uint32_t newTime;       // future timestamp
         uint16_t lastAdc;       // real value of the ADC the last time (move)

@@ -4,18 +4,20 @@
 
 This work is based on the previous work of these people:
 
-* [Bitx40v3 users and Raduino developers:](https://github.com/afarhan/bitx40) The team that make this method popular.
+* [Bitx40v3 users and Raduino developers:](https://github.com/afarhan/bitx40) The original code.
+* [Allard Munters PE1NWL](https://github.com/amunters/bitx40/) The updated version of the original code.
 
 ## Features ##
 
 This is a kind of linear tuning and in the center with big steps on the edges:
 
+* Selectable Analog pin.
 * Range set on initialization (Start-End).
 * Step selection on initialization.
 * Edge jumps on initialization.
 * Set a start point in the passed range.
-* All the above is changeable in hot state via public variables.
-* Direction finding for Option selection.
+* Flutter fix from Jerry KE7ER.
+* Direction finding for Option selection (useful in menu selections).
 
 See the examples bundled with the lib for use cases.
 
@@ -23,7 +25,7 @@ See the examples bundled with the lib for use cases.
 
 We use a linear volume resistor with extremes connected to GND and +Vcc of the Arduino, for stability you must put a 1uF polarized capacitor across GND and +Vcc at the variable resistor legs, then a 10nF (103) capacitor across GND and the wiper.
 
-Then the wiper is connected to an Analog input of the Arduino, see the examples with this.
+Then the wiper is connected to an Analog input of the Arduino, see the examples bundled with this lib.
 
 ## Author & contributors ##
 

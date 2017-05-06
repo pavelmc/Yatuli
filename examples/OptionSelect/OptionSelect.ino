@@ -20,7 +20,8 @@
  *
  * ===========================================================================
  *
- * This example simulates a multiple options selection via a yatuli menu
+ * This example simulates a rotating menu selection process
+ * using the yatuli function dir()
  *
  * ===========================================================================
  *
@@ -42,12 +43,12 @@
 #include "yatuli.h"
 
 // Define the Analog Pin to Use
-#define APin  A0
+#define APin  A7
 
 // lib instantiation as "yt"
 Yatuli yt;
 
-// options
+// options to rotate upon
 String optionNames[] = {"  IF  ",
                         " FREQ ",
                         " XTAL ",
@@ -57,6 +58,7 @@ String optionNames[] = {"  IF  ",
 
 int opt = 0; 
 
+
 // function to show the value via serial
 void show(void) {
     Serial.print("Option: ");
@@ -65,12 +67,13 @@ void show(void) {
 
 
 void setup() {
-    // initialize serial communications at 115200 bps:
-    Serial.begin(115200);
+    // initialize serial communications at 19200 bps:
+    Serial.begin(19200);
     Serial.println("Example init...");
 
-    // Init the lib, at this point this doesn't matter, we will use just options
-    yt.init(APin, 6900000LL, 7500000LL, 100, 10000L);
+    // Init the lib, at this point this doesn't matter in this example
+    // as we will use just dir()
+    yt.init(APin, 6900000LL, 7500000LL, 1000, 10000L);
 
     // Set 7.100 Mhz as the start freq
     yt.set(7100000L);
@@ -79,10 +82,12 @@ void setup() {
 void loop() {
     // check
     if (yt.check()) {
-        // we are using just the slowTune option
+        // we are using just the dir() function
         int direction = yt.dir();
-        
+
+        // check to move if needed
         if (direction != 0) {
+            // move
             opt += direction;
 
             // limit checks

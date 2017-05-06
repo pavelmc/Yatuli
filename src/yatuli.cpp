@@ -40,21 +40,21 @@
  * Main initializing procedure
  ****************************************************************************/
 void Yatuli::init(uint8_t _pin, uint32_t _start, uint32_t _end, uint16_t _step, uint16_t _edgeStep) {
-    // analog pin
     pin = _pin;
     start = _start;
     end = _end;
-    // step must be greater  than 10 always
+    edgeStep = _edgeStep;
+    
+    // step must be greater than 10 always
     if (_step < 10) _step = 10;
     step = _step/10;
-    edgeStep = _edgeStep;
 
     // set the analog put to input
     pinMode(pin, INPUT);
 
     // update adc values
     adc = analogRead(pin);
-    lastAdcDir = adc;
+    lastAdcDir = 0;
 
     // calc current position
     base = start;
@@ -86,7 +86,7 @@ bool Yatuli::check(void) {
     adc = analogRead(pin);
 
     // if adc is on beyond edges always return changed
-    //  but in a predefined pace
+    // but in a predefined pace
     if (adc <= LIMITLOW or adc >= LIMITHIGH) {
         
         // ok check if the elapsed time passed away
@@ -101,6 +101,7 @@ bool Yatuli::check(void) {
     // first some direction detectors
     bool up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 3);
     bool down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 3);
+    
     // check it now
     if (up || down) {
         // flag about the direction of the movement
@@ -117,6 +118,7 @@ bool Yatuli::check(void) {
         return 1;
     }
 
+    // if you get here that's because nothing changed
     return 0;
 }
 
@@ -124,14 +126,13 @@ bool Yatuli::check(void) {
 /*****************************************************************************
  * Use this to get the value in the range (including edge jumps)
  *
- * It's made optional (not forced), as you may use dir or move at your own
+ * It's made optional (not forced), as you may use dir or value at your own
  * way and tricks
  *
- * Se ShuttleTune example
+ * See ShuttleTune example
  ****************************************************************************/
 uint32_t Yatuli::value(void) {
     // calc the values depending on the ADC value
-    // out value
     uint32_t out;
     int32_t delta = (-512L + adc) * step;
 
@@ -147,10 +148,7 @@ uint32_t Yatuli::value(void) {
         out = base + delta;
     }
     
-    if (adc <= LIMITLOW or adc >= LIMITHIGH) {
-        // re-set the base
-        base = out - delta;
-    }
+    if (adc <= LIMITLOW or adc >= LIMITHIGH) base = out - delta;
 
     return out;
 }
@@ -158,28 +156,25 @@ uint32_t Yatuli::value(void) {
 
 /*****************************************************************************
  * This will emit a -1/0/+1 vector corresponding to the movement on the dial,
- * very useful for option selecting, it's emitted a PACE intervals.
+ * very useful for option selection, it's supposed to emit about 50 steps per
+ * dial rotation
  *
- * Se OptionSelect example
+ * See OptionSelect example
  ****************************************************************************/
 int16_t Yatuli::dir(void) {
-    // ok check if the elapsed time passed away
-    if (millis() < newTime) {
-        // not yet
-        return 0;
-    } else {
-        // set new interval
-        newTime = millis() + PACE;
+    // calc the difference
+    int16_t result = (int16_t)(adc) - (int16_t)(lastAdcDir);
 
-        // now we calculate
-        int16_t result = (int16_t)(adc) - lastAdcDir;
+    // limited to ~50 steps per rotation of the dial
+    if (abs(result) < 20) return 0;
 
-        //detect direction
-        if (result > 0) result =  1;
-        if (result < 0) result = -1;
+    // 
+    if (result > 0) result =  1;
+    if (result < 0) result = -1;
 
-        // set the next last and return
-        lastAdcDir = adc;
-    }
+    // set last state
+    lastAdcDir = adc;
 
+    // return
+    return result;
 }
