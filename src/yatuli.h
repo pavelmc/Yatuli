@@ -60,7 +60,7 @@ class Yatuli {
         
         // Update, this is what you put in your loop and call it on every
         // cycle to update all values and see if it moved
-        boolean check(void);
+        bool check(void);
         
         // Return the value in the init range
         // including the edge jumps
@@ -76,19 +76,13 @@ class Yatuli {
         uint32_t end;           // stop of the range
         uint16_t step;          // minimum step
         uint16_t edgeStep;      // steps at the edges
-        int16_t  relative;      // relative unit of ADC in -500 to +500 range
-        
     private:
-        // function to update the adc value and return
-        // the relative moving vale of it
-        void _update(void);
-        
         uint32_t base;          // base value of the slot (lower end)
         uint32_t newTime;       // future timestamp
         uint16_t lastAdc;       // real value of the ADC the last time (move)
         uint16_t lastAdcDir;    // real value of the ADC the last time (dir)
-        uint32_t lastValue;     // last value in the start-end range
         uint8_t  pin;           // the analog pin on which we will operate
+        boolean  adcDir;        // direction of the last movement
 };
 
 #endif

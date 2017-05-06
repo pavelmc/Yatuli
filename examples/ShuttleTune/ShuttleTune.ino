@@ -43,7 +43,7 @@
 #include "yatuli.h"
 
 // Define the Analog Pin to Use
-#define APin  A0
+#define APin  A7
 
 // lib instantiation as "St" for shuttle tune
 Yatuli St;
@@ -65,17 +65,17 @@ void setup() {
     Serial.println("Example init...");
 
     // Init the lib
-    St.init(APin, 6900000LL, 7500000LL, 100, 10000L);
+    St.init(APin, 6900000LL, 7500000LL, 1000, 10000L);
 
     // Set 7.100 Mhz as the start freq
-    St.set(7100000L);
+    St.set(7150000L);
 }
 
 void loop() {
     // check
     if (St.check()) {
         // value has changed
-        show(St.value(), St.adc, St.relative);
+        show(St.value(), St.adc, -512L + St.adc);
     }
 
     delay(50);

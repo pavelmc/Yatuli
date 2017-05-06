@@ -35,6 +35,7 @@
 #include "Arduino.h"
 #include "yatuli.h"
 
+
 /*****************************************************************************
  * Main initializing procedure
  ****************************************************************************/
@@ -43,21 +44,20 @@ void Yatuli::init(uint8_t _pin, uint32_t _start, uint32_t _end, uint16_t _step, 
     pin = _pin;
     start = _start;
     end = _end;
-    step = _step;
+    // step must be greater  than 10 always
+    if (_step < 10) _step = 10;
+    step = _step/10;
     edgeStep = _edgeStep;
 
     // set the analog put to input
     pinMode(pin, INPUT);
 
     // update adc values
-    _update();
+    adc = analogRead(pin);
     lastAdcDir = adc;
 
     // calc current position
     base = start;
-
-    // last value update
-    lastValue = start;
 }
 
 
@@ -66,35 +66,14 @@ void Yatuli::init(uint8_t _pin, uint32_t _start, uint32_t _end, uint16_t _step, 
  ****************************************************************************/
 void Yatuli::set(uint32_t init_value) {
     // update adc values
-    _update();
+    adc = analogRead(pin);
 
-    // limit check, if out no-go
+    // limit check, if out of range: no-go
     if (init_value > end or init_value < start) return;
     
     // put the internal variables in the correct place for the pot being on
     // the passed position
-    base = init_value - (uint16_t)(step * relative);
-
-    // last value update
-    lastValue = init_value;
-}
-
-
-/*****************************************************************************
- * Private procedure, it will update the ADC and calc the relative delta
- ****************************************************************************/
-void Yatuli::_update(void) {
-    int16_t sum = 0;
-
-    // aggregate the ADC samples
-    for (byte i = 0; i < ST_SAMPLES; i++) {
-        sum += analogRead(pin);
-    }
-
-    // average them
-    adc = sum/ST_SAMPLES;
-    
-    relative = map(adc, (LIMITLOW + 1), (LIMITHIGH -1), -500L, 500L);
+    base = init_value - (step * (-512L + adc));
 }
 
 
@@ -102,9 +81,9 @@ void Yatuli::_update(void) {
  * This is the one you NEED to run in every loop cycle, it will return true
  * if the status has changed
  ****************************************************************************/
-boolean Yatuli::check(void) {
+bool Yatuli::check(void) {
     // update adc values
-    _update();
+    adc = analogRead(pin);
 
     // if adc is on beyond edges always return changed
     //  but in a predefined pace
@@ -115,21 +94,30 @@ boolean Yatuli::check(void) {
             // it's safe
             newTime = millis() + PACE;
             return 1;
-        } else {
-            // not yet
-            return 0;
-        }
+        } 
     }
 
-    // it has moved?
-    if (lastAdc != adc) {
+    // flutter fix, from bitx amunters raduino, code author Jerry KE7ER
+    // first some direction detectors
+    bool up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 3);
+    bool down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 3);
+    // check it now
+    if (up || down) {
+        // flag about the direction of the movement
+        if (adc > lastAdc) {
+            adcDir = 1;
+        } else {
+            adcDir = 0;
+        }
+
+        // save the last adc
         lastAdc = adc;
-        //output
+
+        // return true
         return 1;
-    } else {
-        // nothing has changed
-        return 0;
     }
+
+    return 0;
 }
 
 
@@ -145,7 +133,7 @@ uint32_t Yatuli::value(void) {
     // calc the values depending on the ADC value
     // out value
     uint32_t out;
-    int32_t delta = (int32_t)(relative) * step;
+    int32_t delta = (-512L + adc) * step;
 
     // check for movemnts
     if (adc <= LIMITLOW) {
@@ -159,17 +147,11 @@ uint32_t Yatuli::value(void) {
         out = base + delta;
     }
     
-    // then if it's possible to move there
-     if (out > end or out < start) {
-        // can't be applied
-        return lastValue;
-    } else if (adc <= LIMITLOW or adc >= LIMITHIGH) {
+    if (adc <= LIMITLOW or adc >= LIMITHIGH) {
         // re-set the base
         base = out - delta;
     }
 
-    // return it
-    lastValue = out;
     return out;
 }
 
@@ -181,9 +163,6 @@ uint32_t Yatuli::value(void) {
  * Se OptionSelect example
  ****************************************************************************/
 int16_t Yatuli::dir(void) {
-    // update adc values
-    _update();
-
     // ok check if the elapsed time passed away
     if (millis() < newTime) {
         // not yet
@@ -193,8 +172,7 @@ int16_t Yatuli::dir(void) {
         newTime = millis() + PACE;
 
         // now we calculate
-        int16_t result = adc;
-        result -= lastAdcDir;
+        int16_t result = (int16_t)(adc) - lastAdcDir;
 
         //detect direction
         if (result > 0) result =  1;
@@ -202,7 +180,6 @@ int16_t Yatuli::dir(void) {
 
         // set the next last and return
         lastAdcDir = adc;
-        return result;
     }
 
 }
