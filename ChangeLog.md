@@ -1,6 +1,15 @@
 # Yatuli Changelog File #
 
-## Update release v0.2 (May 6, 2017) ##
+## Release v0.3 (May 7, 2017) ##
+
+### Improvements ###
+
+* Range and value can now handle negative integers, needed on setup functions
+* Soft set of the 10Hz the hard way, some calcs can lead to jumps on the lower 10 Hz.
+* Bug Fix: range edged was not honored on certain conditions
+
+
+## Release v0.2 (May 6, 2017) (private, never published) ##
 
 ### Improvements ###
 
@@ -9,7 +18,7 @@
 * Update all the docs about this release.
 
 
-## Initial Release (private, never published), v0.1 (May 1, 2017) ##
+## Initial Release, v0.1 (May 1, 2017) (private, never published) ##
 
 ### Basic functionality ###
 

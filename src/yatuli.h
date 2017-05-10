@@ -52,10 +52,10 @@ class Yatuli {
         // * Limits, start/end (up to 4.2 Ghz)
         // * Minimum step (up to 65 K)
         // * Steps on the edges (up to 65 K)
-        void init(uint8_t, uint32_t, uint32_t, uint16_t, uint16_t);
+        void init(uint8_t, int32_t, int32_t, uint16_t, uint16_t);
 
         // pass a starting point, if not called it will be on the lower end
-        void set(uint32_t);
+        void set(int32_t);
         
         // Update, this is what you put in your loop and call it on every
         // cycle to update all values and see if it moved
@@ -63,19 +63,22 @@ class Yatuli {
         
         // Return the value in the init range
         // including the edge jumps
-        uint32_t value(void);
+        int32_t value(void);
         
         // Return a relative vector from the last position: -1/0/+1
         // it will emit about ~50 steps in one rotation
         int16_t dir(void);
+
+        // public value
+        uint16_t adc;           // real value of the ADC
         
     private:
-        uint16_t adc;           // real value of the ADC
-        uint32_t start;         // start of the range
-        uint32_t end;           // stop of the range
+        int32_t start;          // start of the range
+        int32_t end;            // stop of the range
         uint16_t step;          // minimum step (x/10 to allow for jitter correction)
         uint16_t edgeStep;      // steps at the edges
-        uint32_t base;          // base value of the slot (lower end)
+        int32_t base;           // base value of the slot (lower end)
+        int32_t oldValue;       // last value emitted
         uint32_t newTime;       // future timestamp
         uint16_t lastAdc;       // real value of the ADC the last time (move)
         uint16_t lastAdcDir;    // real value of the ADC the last time (dir)

@@ -39,13 +39,13 @@
 /*****************************************************************************
  * Main initializing procedure
  ****************************************************************************/
-void Yatuli::init(uint8_t _pin, uint32_t _start, uint32_t _end, uint16_t _step, uint16_t _edgeStep) {
+void Yatuli::init(uint8_t _pin, int32_t _start, int32_t _end, uint16_t _step, uint16_t _edgeStep) {
     pin = _pin;
     start = _start;
     end = _end;
     edgeStep = _edgeStep;
     
-    // step must be greater than 10 always
+    // step must be greater than 10 always, 10 hz is the less resolution you will get
     if (_step < 10) _step = 10;
     step = _step/10;
 
@@ -58,13 +58,14 @@ void Yatuli::init(uint8_t _pin, uint32_t _start, uint32_t _end, uint16_t _step, 
 
     // calc current position
     base = start;
+    oldValue = start;
 }
 
 
 /*****************************************************************************
  * Use it when you need to start in a specific spot on the valid range
  ****************************************************************************/
-void Yatuli::set(uint32_t init_value) {
+void Yatuli::set(int32_t init_value) {
     // update adc values
     adc = analogRead(pin);
 
@@ -74,6 +75,9 @@ void Yatuli::set(uint32_t init_value) {
     // put the internal variables in the correct place for the pot being on
     // the passed position
     base = init_value - (step * (-512L + adc));
+
+    // old value set
+    oldValue = init_value;
 }
 
 
@@ -99,8 +103,8 @@ bool Yatuli::check(void) {
 
     // flutter fix, from bitx amunters raduino, code author Jerry KE7ER
     // first some direction detectors
-    bool up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 3);
-    bool down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 3);
+    bool up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 5);
+    bool down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 5);
     
     // check it now
     if (up || down) {
@@ -131,9 +135,9 @@ bool Yatuli::check(void) {
  *
  * See ShuttleTune example
  ****************************************************************************/
-uint32_t Yatuli::value(void) {
+int32_t Yatuli::value(void) {
     // calc the values depending on the ADC value
-    uint32_t out;
+    int32_t out;
     int32_t delta = (-512L + adc) * step;
 
     // check for movemnts
@@ -147,8 +151,19 @@ uint32_t Yatuli::value(void) {
         // normal move
         out = base + delta;
     }
-    
+
+    // apply new base if it's the case
     if (adc <= LIMITLOW or adc >= LIMITHIGH) base = out - delta;
+
+    // check limits
+    if (out > end or out < start) out = oldValue;
+
+    // reset the least 10 Hz t o zero, 10 Hz is the less resolution
+    out /= 10;
+    out *= 10;
+
+    // set oldvalue
+    oldValue = out;
 
     return out;
 }
