@@ -23,6 +23,8 @@
  * This example simulates a radio dial via serial port, you can see the
  * frequency, ADC value and relative value to ADC center.
  *
+ * It's intended to be tested on a Raduino hardware.
+ *
  * ===========================================================================
  *
  * This program is free software: you can redistribute it and/or modify
@@ -45,7 +47,7 @@
 // Define the Analog Pin to Use
 #define APin  A7
 
-// lib instantiation as "St" for shuttle tune
+// lib instantiation as "St" for Shuttle tune function
 Yatuli St;
 
 // function to show the value via serial
@@ -63,10 +65,14 @@ void setup() {
     Serial.println("Example init...");
 
     // Init the lib
-    St.init(APin, 6900000LL, 7500000LL, 100, 10000L);
+    St.init(APin, 6900000, 7500000, 100, 10000);
+
+    // 6.9 to 7.5 Mhz
+    // 100 Hz steps
+    // 10 kHz steps on edges
 
     // Set 7.100 Mhz as the start freq
-    St.set(7150000L);
+    St.set(7100000);
 }
 
 

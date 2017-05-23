@@ -66,15 +66,19 @@ void Yatuli::set(int32_t init_value) {
     // update adc values
     _osadc();
 
-    // limit check, if out of range: no-go
-    if (init_value > end or init_value < start) return;
-    
-    // put the internal variables in the correct place for the pot being on
-    // the passed position
-    base = init_value - (step * adc)/10;
+    // internal var
+    int32_t shift = (int32_t)(adc/10) * step;
 
-    // old value set
-    value = init_value;
+    // limit checks
+    if (init_value > end or init_value < start) {
+        // out of range; set to lower end + actual ADC
+        base = start;
+        value = base + shift;
+    } else {
+        // in range; set
+        base = init_value - shift;
+        value = init_value;
+    }
 }
 
 
@@ -90,52 +94,46 @@ void Yatuli::check(void) {
     // update adc values
     _osadc();
 
-    // lower end
-    if (adc < LIMITLOW && value > start + edgeStep) {
-        if (millis() > newTime) {
-            // mode down in big steps
-            value -= edgeStep;
-            base -= edgeStep;
+    // simplifying the math ahead
+    bool up   = (adc > LIMITHIGH) && (value < end - edgeStep);
+    bool down = (adc < LIMITLOW) && (value > start + edgeStep);
 
+    // out of operative range?
+    if (up || down) {
+        // ok, big jumps at a pace
+        if (millis() > newTime) {
+            // in which direction
+            long t = 1;
+            if (down) t = -1L;
+
+            // move
+            value += (edgeStep * t);
+            base += (edgeStep * t);
+            
             // reset pace timer
             newTime = millis() + PACE;
         }
-    }
-    // upper end
-    else if (adc > LIMITHIGH && value < end - edgeStep) {
-        if (millis() > newTime) {
-            // move up in big steps
-            value += edgeStep;
-            base += edgeStep;
-
-            // reset pace timer
-            newTime = millis() + PACE;
-        }
-    }
-    // normal move
-    else {
-        // flutter fix, from bitx amunters raduino, code author Jerry KE7ER
-        // first some direction detectors
-        bool up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 5);
-        bool down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 5);
+    } else {
+        // we are in the operative range
+        // flutter fix, from bitx amunters raduino code, author Jerry KE7ER
+        
+        // direction detectors... (re-using vars)
+        up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 5);
+        down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 5);
         
         // check it now
         if (up || down) {
             // flag about the direction of the movement
-            if (adc > lastAdc) {
-                adcDir = 1;
-            } else {
-                adcDir = 0;
-            }
+            if (adc > lastAdc) { adcDir = 1; } else { adcDir = 0; }
 
-            // save the last adc
+            // save the last adc & old value in case it falls outside range...
             lastAdc = adc;
-
-            // save the old value if outside...
             int32_t oldValue = value;
 
-            // force a consistent step
-            value  = (base + (adc * step) / 10);
+            // force an update
+            value  = base + (int32_t)(adc / 10) * step;
+            
+            // force a consistent step interval
             value /= step;
             value *= step;
 
@@ -147,7 +145,7 @@ void Yatuli::check(void) {
 
 
 /*****************************************************************************
- * oversampling of the ADC in 10x, from 0 to 10230 but moved to the more
+ * Oversampling of the ADC in 10x, from 0 to 10230 but moved to the more
  * convenient range of -5115 to +5115
  ****************************************************************************/
 void Yatuli::_osadc(void) {

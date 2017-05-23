@@ -6,6 +6,7 @@ This work is based on the previous work of these people:
 
 * [Bitx40v3 users and Raduino developers:](https://github.com/afarhan/bitx40) The original code.
 * [Allard Munters PE1NWL](https://github.com/amunters/bitx40/) The updated version of the original code.
+* [Jerry KE7ER:](#) With the oversampling and flitter fix.
 
 ## Features ##
 
@@ -13,8 +14,7 @@ This is a kind of linear tuning and in the center with big steps on the edges:
 
 * Selectable Analog pin.
 * Range set on initialization (Start-End).
-* Step selection on initialization.
-* Steps down up to 10 Hz (Real minimum)
+* Step selection on initialization, down to 10 Hz (real minimum).
 * Edge jumps on initialization.
 * Set a start point in the passed range.
 * Flutter fix from Jerry KE7ER.
@@ -37,7 +37,7 @@ The only author is Pavel Milanes, CO7WT, a cuban amateur radio operator; reachab
 
 ## Where to download the latest version? ##
 
-Always download the latest version from the [github repository](https://github.com/pavelmc/Yatuli)
+Always download the latest version from the [official github repository](https://github.com/pavelmc/Yatuli)
 
 See ChangeLog.md & version files on this repository to know what is your version and what are the latest changes to it.
 

@@ -23,6 +23,8 @@
  * This example simulates a rotating menu selection process
  * using the yatuli function dir()
  *
+ * It's intended to be tested on a Raduino hardware.
+ *
  * ===========================================================================
  *
  * This program is free software: you can redistribute it and/or modify
@@ -75,10 +77,14 @@ void setup() {
 
     // Init the lib, at this point this doesn't matter in this example
     // as we will use just dir()
-    yt.init(APin, 6900000LL, 7500000LL, 1000, 10000L);
+    yt.init(APin, 6900000, 7500000, 100, 10000);
+
+    // 6.9 to 7.5 Mhz
+    // 100 Hz steps
+    // 10 kHz steps on edges
 
     // Set 7.100 Mhz as the start freq
-    yt.set(7100000L);
+    yt.set(7100000);
 }
 
 void loop() {

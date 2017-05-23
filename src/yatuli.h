@@ -40,15 +40,14 @@
 #include "Arduino.h"
 
 // some defines
-#define PACE 500            // how many time between edge jumps & dir emits
-#define LIMITLOW -5000L     // limits to jump (< 10%) |> 10k units
-#define LIMITHIGH 5000L     // limits to jump (> 90%) |> 10x oversampling here
+#define PACE 500            // how many msecs between edge jumps & dir emits
+#define LIMITLOW -5000L     // limits to jump (< 10%)
+#define LIMITHIGH 5000L     // limits to jump (> 90%)
 #define DIRTICKS 500L       // about 20 ticks per rotation
-                            // 1000 / desired_steps = 500
+                            // ~ 1000 / (desired_steps) ... 500
 
 /**** RANGE of one turn is 1023 steps, but internally is handled as 10230 ****/
 
-/***** Main Class initialization *****/
 class Yatuli {
     public:
         // Custom init procedure, we need:
@@ -67,6 +66,7 @@ class Yatuli {
 
         // Return a relative vector from the last position: -1/0/+1
         // it will emit about ~50 steps in one rotation
+        // WATCH OUT!: int8_t is char in arduino 
         int8_t dir(void);
 
         // public value
