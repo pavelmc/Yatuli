@@ -49,13 +49,11 @@
 Yatuli St;
 
 // function to show the value via serial
-void show(long val, word adc, int rel) {
+void show(long val, int adc) {
     Serial.print("Freq: ");
     Serial.print(val);
     Serial.print(" ADC: ");
-    Serial.print(adc);
-    Serial.print(" REL: ");
-    Serial.println(rel);
+    Serial.println(adc);
 }
 
 
@@ -65,7 +63,7 @@ void setup() {
     Serial.println("Example init...");
 
     // Init the lib
-    St.init(APin, 6900000LL, 7500000LL, 1000, 10000L);
+    St.init(APin, 6900000LL, 7500000LL, 100, 10000L);
 
     // Set 7.100 Mhz as the start freq
     St.set(7150000L);
@@ -73,11 +71,19 @@ void setup() {
 
 
 void loop() {
+    // the assignation happens only at the first cycle
+    static long last = St.value;
+    
     // check
-    if (St.check()) {
-        // value has changed
-        show(St.value(), St.adc, -512L + St.adc);
-    }
+    St.check();
 
-    delay(50);
+    // show only if it has changed
+    if (last != St.value) {
+        // has moved, show
+        show(St.value, St.adc);
+
+        // set the last value
+        last = St.value;
+    }
 }
+

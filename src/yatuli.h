@@ -41,8 +41,12 @@
 
 // some defines
 #define PACE 500            // how many time between edge jumps & dir emits
-#define LIMITLOW 11         // limits to jump (low)
-#define LIMITHIGH 1012      // limits to jump (high)
+#define LIMITLOW -5000L     // limits to jump (< 10%) |> 10k units
+#define LIMITHIGH 5000L     // limits to jump (> 90%) |> 10x oversampling here
+#define DIRTICKS 500L       // about 20 ticks per rotation
+                            // 1000 / desired_steps = 500
+
+/**** RANGE of one turn is 1023 steps, but internally is handled as 10230 ****/
 
 /***** Main Class initialization *****/
 class Yatuli {
@@ -56,34 +60,29 @@ class Yatuli {
 
         // pass a starting point, if not called it will be on the lower end
         void set(int32_t);
-        
+
         // Update, this is what you put in your loop and call it on every
         // cycle to update all values and see if it moved
-        bool check(void);
-        
-        // Return the value in the init range
-        // including the edge jumps
-        int32_t value(void);
-        
+        void check(void);
+
         // Return a relative vector from the last position: -1/0/+1
         // it will emit about ~50 steps in one rotation
-        int16_t dir(void);
+        int8_t dir(void);
 
         // public value
-        uint16_t adc;           // real value of the ADC
-        
+        int16_t adc;            // oversampled ADC in the range -5115/+5115
+        int32_t value;          // real value in the range
+
     private:
         int32_t start;          // start of the range
         int32_t end;            // stop of the range
-        uint16_t step;          // minimum step (x/10 to allow for jitter correction)
+        uint16_t step;          // minimum step
         uint16_t edgeStep;      // steps at the edges
-        int32_t base;           // base value of the slot (lower end)
-        int32_t oldValue;       // last value emitted
-        uint32_t newTime;       // future timestamp
-        uint16_t lastAdc;       // real value of the ADC the last time (move)
-        uint16_t lastAdcDir;    // real value of the ADC the last time (dir)
+        int32_t base;           // base value of the slot, lower end by default
         uint8_t  pin;           // the analog pin on which we will operate
-        boolean  adcDir;        // direction of the last movement
+
+        // oversampling the ADC
+        void _osadc(void);
 };
 
 #endif

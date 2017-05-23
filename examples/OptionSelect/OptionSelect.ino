@@ -49,19 +49,21 @@
 Yatuli yt;
 
 // options to rotate upon
-String optionNames[] = {"  IF  ",
-                        " FREQ ",
-                        " XTAL ",
-                        " BFO  ",
-                        " PPM "};
-#define OptCount 4
+String optionNames[] = {"|....",
+                        ".|...",
+                        "..|..",
+                        "...|.",
+                        "....|"};
+#define OptCount 4  // 
 
-int opt = 0; 
+int opt = 0;
+char direction = 0;     // char is int8_t (-127...+127)
 
 
 // function to show the value via serial
 void show(void) {
-    Serial.print("Option: ");
+    Serial.print(opt);
+    Serial.print(" Option: ");
     Serial.println(optionNames[opt]);
 }
 
@@ -81,23 +83,21 @@ void setup() {
 
 void loop() {
     // check
-    if (yt.check()) {
-        // we are using just the dir() function
-        int direction = yt.dir();
+    yt.check();
+    
+    // we are using just the dir() function
+    direction = yt.dir();
 
-        // check to move if needed
-        if (direction != 0) {
-            // move
-            opt += direction;
+    // check to move if needed
+    if (direction != 0) {
+        // move
+        opt += direction;
 
-            // limit checks
-            if (opt > OptCount) opt = 0;
-            if (opt < 0) opt = OptCount;
+        // limit checks
+        if (opt > OptCount) opt = 0;
+        if (opt < 0) opt = OptCount;
 
-            // show it
-            show();
-        }
+        // show it
+        show();
     }
-
-    delay(50);
 }
