@@ -1,4 +1,6 @@
-# YATULI (Yet another Tune Lib) #
+# Yatuli Arduino Library#
+
+Yatuli = Yet another Tune Lib, go cheap: use a linear volume control instead a rotary encoder.
 
 ## Inspiration ##
 
