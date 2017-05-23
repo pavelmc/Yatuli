@@ -8,7 +8,7 @@ This work is based on the previous work of these people:
 
 * [Bitx40v3 users and Raduino developers:](https://github.com/afarhan/bitx40) The original code.
 * [Allard Munters PE1NWL](https://github.com/amunters/bitx40/) The updated version of the original code.
-* [Jerry KE7ER:](#) With the oversampling and flitter fix.
+* [Jerry KE7ER:](#) With the oversampling and flutter fix.
 
 ## Features ##
 
