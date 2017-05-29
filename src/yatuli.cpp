@@ -17,7 +17,7 @@
  * You can get the latest code in this Github repository:
  *
  * https://github.com/pavelmc/yatuli
- * 
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -56,6 +56,9 @@ void Yatuli::init(uint8_t _pin, int32_t _start, int32_t _end, uint16_t _step, ui
     // some defaults
     base = start;
     value = start;
+
+    // defaults to unlock state
+    lock = false;
 }
 
 
@@ -86,11 +89,14 @@ void Yatuli::set(int32_t init_value) {
  * This is the one you NEED to run in every loop cycle to update value
  ****************************************************************************/
 void Yatuli::check(void) {
+    // lock flag
+    if (lock) return;
+
     // internal vars, statics as they are used repeatedly in this.
     static int16_t lastAdc = adc;
     static uint32_t newTime = millis();
     static boolean adcDir;
-    
+
     // update adc values
     _osadc();
 
@@ -109,18 +115,18 @@ void Yatuli::check(void) {
             // move
             value += (edgeStep * t);
             base += (edgeStep * t);
-            
+
             // reset pace timer
             newTime = millis() + PACE;
         }
     } else {
         // we are in the operative range
         // flutter fix, from bitx amunters raduino code, author Jerry KE7ER
-        
+
         // direction detectors... (re-using vars)
         up   = (adc > lastAdc) && (adcDir == 1 || (adc - lastAdc) > 5);
         down = (adc < lastAdc) && (adcDir == 0 || (lastAdc - adc) > 5);
-        
+
         // check it now
         if (up || down) {
             // flag about the direction of the movement
@@ -132,7 +138,7 @@ void Yatuli::check(void) {
 
             // force an update
             value  = base + (int32_t)(adc / 10) * step;
-            
+
             // force a consistent step interval
             value /= step;
             value *= step;
@@ -149,6 +155,9 @@ void Yatuli::check(void) {
  * convenient range of -5115 to +5115
  ****************************************************************************/
 void Yatuli::_osadc(void) {
+    // lock flag
+    if (lock) return;
+
     // internal var
     int32_t t = 0;
 
@@ -170,9 +179,12 @@ void Yatuli::_osadc(void) {
  * See OptionSelect example
  ****************************************************************************/
 int8_t Yatuli::dir(void) {
+    // lock flag
+    if (lock) return;
+
     // internal var
     static int16_t lastAdcDir = adc;
-    
+
     // calc the difference and scale to 20 tick per dial rotation
     int16_t result = (adc - lastAdcDir)/DIRTICKS;
 

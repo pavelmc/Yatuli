@@ -17,7 +17,7 @@
  * You can get the latest code in this Github repository:
  *
  * https://github.com/pavelmc/yatuli
- *  
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -66,12 +66,17 @@ class Yatuli {
 
         // Return a relative vector from the last position: -1/0/+1
         // it will emit about ~50 steps in one rotation
-        // WATCH OUT!: int8_t is char in arduino 
+        // WATCH OUT!: int8_t is char in arduino
         int8_t dir(void);
 
         // public value
         int16_t adc;            // oversampled ADC in the range -5115/+5115
         int32_t value;          // real value in the range
+
+        // lock feature, when lock is true, we refuse to update the value/dir
+        // as in a real TX high currents or RF can disturb the ADC and add FMing
+        // to the real freq.
+        bool lock;
 
     private:
         int32_t start;          // start of the range

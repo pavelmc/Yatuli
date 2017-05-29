@@ -1,6 +1,13 @@
 # Yatuli Changelog File #
 
 ==================================================
+## Release v0.5 (May 29, 2017) (Public Release) ##
+
+### Improvements ###
+
+* Feature: now you has a lock var, when lock is true the code will refuse to update any values coming from the ADC; this is to avoid any form of FM modulation due to voltage variations due to high currents or RF when in use in real transceivers.
+
+==================================================
 ## Release v0.4 (May 22, 2017) (First Public Release) ##
 
 ### Improvements ###

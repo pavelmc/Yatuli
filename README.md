@@ -24,6 +24,7 @@ This is a kind of linear tuning and in the center with big steps on the edges:
 * You can dynamically reset the range and start value while running (useful in setups).
 * Negative values are supported in all the range (start, end & value)
 * Range is handled by 32 bit signed values, so it will work from -/+ 2.4G values.
+* Lock feature, you can lock in the lib when in TX (or wherever you case it).
 
 See the examples bundled with the lib for use cases.
 
