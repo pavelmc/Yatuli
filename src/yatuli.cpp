@@ -180,7 +180,7 @@ void Yatuli::_osadc(void) {
  ****************************************************************************/
 int8_t Yatuli::dir(void) {
     // lock flag
-    if (lock) return;
+    if (lock) return 0;
 
     // internal var
     static int16_t lastAdcDir = adc;
