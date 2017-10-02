@@ -9,10 +9,19 @@
  *
  * We use a linear volume resistor with extremes connected to GND and +Vcc
  * of the arduino, for stability you must put a 1uF polarized capacitor
- * across GND and +Vcc, then a 10nF (103) capacitor across GND and the wiper
+ * across GND and +Vcc, then a 1nF (102) capacitor across GND and the wiper
+ * to avoid RF in noisy environments, but to allow some LF noise that is
+ * good to the ADC oversampling that is the base of this lib
  *
  * The wiper is connected to an Analog input of the Arduino, see the
  * examples with this lib
+ *
+ * We use oversampling to get a better accuracy on the movements
+ * as recommended by the AVR AN121 take a peek at this doc below to know more
+ * http://www.atmel.com/dyn/resources/prod_documents/doc8003.pdf
+ *
+ * We are squeezing it for just two more extra bit as this signal is slow
+ * moving and do has some noise on it.
  *
  * You can get the latest code in this Github repository:
  *
@@ -39,14 +48,20 @@
 // rigor includes
 #include "Arduino.h"
 
-// some defines
-#define PACE 500            // how many msecs between edge jumps & dir emits
-#define LIMITLOW -5000L     // limits to jump (< 10%)
-#define LIMITHIGH 5000L     // limits to jump (> 90%)
+// how many msecs between edge jumps & dir emits
+#define PACE 500
+
+// We use oversampling to get 2 more bits up to 12 bits.
+// so 12 bits is  0-4095, and we need to sample a few more times:
+// AVR121 says 4^n times for every n new bit, so we need 2 more bits:
+// 4^n, where n = 2, 4^2 = 16 time for each unique reading
+// then we center that on zero to get a usable margin of -2074 to +2047
+#define LIMITLOW -1842      // limits to jump (< 5%)
+#define LIMITHIGH 1842      // limits to jump (> 5%)
 #define DIRTICKS 500L       // about 20 ticks per rotation
                             // ~ 1000 / (desired_steps) ... 500
 
-/**** RANGE of one turn is 1023 steps, but internally is handled as 10230 ****/
+/**** RANGE of one turn is 0-1023 steps, with oversampling is as 0-4095 ****/
 
 class Yatuli {
     public:
@@ -70,7 +85,7 @@ class Yatuli {
         int8_t dir(void);
 
         // public value
-        int16_t adc;            // oversampled ADC in the range -5115/+5115
+        int16_t adc;            // oversampled ADC in the range -2047/+2047
         int32_t value;          // real value in the range
 
         // lock feature, when lock is true, we refuse to update the value/dir

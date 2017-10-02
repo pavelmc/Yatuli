@@ -9,7 +9,9 @@
  *
  * We use a linear volume resistor with extremes connected to GND and +Vcc
  * of the arduino, for stability you must put a 1uF polarized capacitor
- * across GND and +Vcc, then a 10nF (103) capacitor across GND and the wiper
+ * across GND and +Vcc, then a 1nF (102) capacitor across GND and the wiper
+ * to avoid RF in noisy environments, but to allow some LF noise that is
+ * good to the ADC oversampling that is the base of this lib
  *
  * The wiper is connected to an Analog input of the Arduino, see the
  * examples with this lib
@@ -56,7 +58,7 @@ String optionNames[] = {"|....",
                         "..|..",
                         "...|.",
                         "....|"};
-#define OptCount 4  // 
+#define OptCount 4  //
 
 int opt = 0;
 char direction = 0;     // char is int8_t (-127...+127)
@@ -90,7 +92,7 @@ void setup() {
 void loop() {
     // check
     yt.check();
-    
+
     // we are using just the dir() function
     direction = yt.dir();
 

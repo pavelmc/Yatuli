@@ -9,7 +9,9 @@
  *
  * We use a linear volume resistor with extremes connected to GND and +Vcc
  * of the arduino, for stability you must put a 1uF polarized capacitor
- * across GND and +Vcc, then a 10nF (103) capacitor across GND and the wiper
+ * across GND and +Vcc, then a 1nF (102) capacitor across GND and the wiper
+ * to avoid RF in noisy environments, but to allow some LF noise that is
+ * good to the ADC oversampling that is the base of this lib
  *
  * The wiper is connected to an Analog input of the Arduino, see the
  * examples with this lib
@@ -79,7 +81,7 @@ void setup() {
 void loop() {
     // the assignation happens only at the first cycle
     static long last = St.value;
-    
+
     // check
     St.check();
 
@@ -92,4 +94,3 @@ void loop() {
         last = St.value;
     }
 }
-

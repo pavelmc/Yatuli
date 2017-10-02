@@ -9,6 +9,7 @@ This work is based on the previous work of these people:
 * [Bitx40v3 users and Raduino developers:](https://github.com/afarhan/bitx40) The original code.
 * [Allard Munters PE1NWL](https://github.com/amunters/bitx40/) The updated version of the original code.
 * [Jerry KE7ER:](#) With the oversampling and flutter fix.
+* [AVR121](http://www.atmel.com/dyn/resources/prod_documents/doc8003.pdf): Oversampling on the ADC of AVR chips.
 
 ## Features ##
 
@@ -30,7 +31,9 @@ See the examples bundled with the lib for use cases.
 
 ## Hardware ##
 
-We use a linear volume resistor with extremes connected to GND and +Vcc of the Arduino, for stability you must put a 1uF polarized capacitor across GND and +Vcc at the variable resistor legs, then a 10nF (103) capacitor across GND and the wiper.
+We use a linear volume resistor with extremes connected to GND and +Vcc of the Arduino, for stability you must put a 1uF polarized capacitor across GND and +Vcc at the variable resistor legs, then a 1nF (102) capacitor across GND and the wiper.
+
+**Beware!:** don't use a cap bigger than 1nf (102) in the wiper as it must be sufficient enough to block RF in the ADC, but we do need some LF noise to the oversampling work to avoid flutter on the readings.
 
 Then the wiper is connected to an Analog input of the Arduino, see the examples bundled with this lib.
 
@@ -46,11 +49,11 @@ See ChangeLog.md & version files on this repository to know what is your version
 
 ## If you like to give thanks... ##
 
-No payment of whatsoever is required to use this code: this is [Free/Libre Software](https://en.wikipedia.org/wiki/Software_Libre), nevertheless donations are very welcomed.
+No payment of whatsoever is required to use this code: this is [Free/Libre Software](https://en.wikipedia.org/wiki/Software_Libre), nevertheless donations are very welcomed and needed.
 
 I live in Cuba island and the Internet/Cell is very expensive here (USD $1.50/hour), you can donate anonymously internet time or cell phone air time to me via [Ding Topups](https://www.ding.com/) to keep me connected and developing for the homebrew community.
 
-If you like to do so, please go to Ding, select Cuba, select Cubacell (for phone top up) or Nauta (for Internet time)
+If you like to do so, please go to Ding, select Cuba, select Cubacel (for phone top up) or Nauta (for Internet time)
 
 * For phone topup use this number (My cell, feel free to call me if you like): +53 538-478-19
 * For internet time use this user: co7wt@nauta.com.cu (that's not an email but an user account name)

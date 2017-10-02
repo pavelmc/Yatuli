@@ -9,10 +9,19 @@
  *
  * We use a linear volume resistor with extremes connected to GND and +Vcc
  * of the arduino, for stability you must put a 1uF polarized capacitor
- * across GND and +Vcc, then a 10nF (103) capacitor across GND and the wiper
+ * across GND and +Vcc, then a 1nF (102) capacitor across GND and the wiper
+ * to avoid RF in noisy environments, but to allow some LF noise that is
+ * good to the ADC oversampling that is the base of this lib
  *
  * The wiper is connected to an Analog input of the Arduino, see the
  * examples with this lib
+ *
+ * We use oversampling to get a better accuracy on the movements
+ * as recommended by the AVR AN121 take a peek at this doc below to know more
+ * http://www.atmel.com/dyn/resources/prod_documents/doc8003.pdf
+ *
+ * We are squeezing it for just two more extra bit as this signal is slow
+ * moving and do has some noise on it.
  *
  * You can get the latest code in this Github repository:
  *
@@ -47,7 +56,7 @@ void Yatuli::init(uint8_t _pin, int32_t _start, int32_t _end, uint16_t _step, ui
     if (_step < 10) _step = 10;     // force 10hz minimum step
     step = _step;
 
-    // set the analog put to input
+    // set the analog pin to input
     pinMode(pin, INPUT);
 
     // update adc values
@@ -130,7 +139,8 @@ void Yatuli::check(void) {
         // check it now
         if (up || down) {
             // flag about the direction of the movement
-            if (adc > lastAdc) { adcDir = 1; } else { adcDir = 0; }
+            if (adc > lastAdc) adcDir = 1;
+            else               adcDir = 0;
 
             // save the last adc & old value in case it falls outside range...
             lastAdc = adc;
@@ -151,8 +161,9 @@ void Yatuli::check(void) {
 
 
 /*****************************************************************************
- * Oversampling of the ADC in 10x, from 0 to 10230 but moved to the more
- * convenient range of -5115 to +5115
+ * Oversampling of the ADC in 12bits from 0 to 4095 but moved to the more
+ * convenient range of -2047 to +2047 to easy some computations.
+ * Now as per AVR121 oversampling recommendations.
  ****************************************************************************/
 void Yatuli::_osadc(void) {
     // lock flag
@@ -161,13 +172,18 @@ void Yatuli::_osadc(void) {
     // internal var
     int32_t t = 0;
 
-    // In normal conditions we has an ADC from 0 - 1023
-    // but we will move this to 0 - 10230 with oversampling
-    for (int i = 0; i < 100; i++) t += analogRead(pin);
+    // In normal conditions we have an ADC from 0 - 1023 (10 bits)
+    // with oversampling we move to 12 bits for better accuracy
+    // 12 bits is 0-4095, and we need to sample a few more times:
+    // AVR121 says 4^n times for every n new bit, so we need 2 more bits:
+    // 4^n, where n = 2, 4^2 = 16 time for each unique reading
+    for (int i = 0; i < 16; i++) t += analogRead(pin);
 
-    // average them to get in the order of 10230 samples per turn and shift
-    // it for 5115 below zero to center the values around zero
-    adc = (int16_t)(t/10 - 5115L);
+    // now we shift it to wipe the two least significant bits to get in range.
+    adc = (int16_t)(t >> 2);
+
+    // then we center that on zero to get a usable margin of -2074 to +2047
+    adc -= 2047;
 }
 
 
